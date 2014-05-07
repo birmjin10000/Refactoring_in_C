@@ -2,28 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "MovieRental.h"
 
 /////////////////////////////////////////////
 /* Linked list */
 /////////////////////////////////////////////
 
-typedef struct _Node {
-    void* data;
-    struct _Node* next;
-} Node;
-
-typedef struct _ArrayList {
-    Node* head;
-    Node* tail;
-    Node* current;
-} ArrayList;
-
 typedef enum _boolean {
     false = 0,
     true = 1
 } boolean;
-
-//const int NULL = 0;
 
 ArrayList* ArrayList_New(void);
 void ArrayList_Add(ArrayList*, void*); 
@@ -85,14 +73,6 @@ void* ArrayList_Get(ArrayList* list, int position) {
 /////////////////////////////////////////////
 /* Movie related */
 /////////////////////////////////////////////
-#define MOVIE_CHILDRENS 2
-#define MOVIE_REGULAR 0
-#define MOVIE_NEW_RELEASE 1
-
-typedef struct _Movie {
-    char* _title;
-    int _priceCode;
-} Movie;
 
 void Movie_New(Movie* self, char* title, int priceCode) {
     self->_title = title;
@@ -114,11 +94,6 @@ char* Movie_GetTitle(Movie* self) {
 ///////////////////////////////////////////
 /* Rental related */
 ///////////////////////////////////////////
-typedef struct _Rental {
-    Movie* _movie;
-    unsigned int _daysRented;
-} Rental;
-
 void Rental_New(Rental* self, Movie* movie, unsigned int daysRented) {
     self->_movie = movie;
     self->_daysRented = daysRented;
@@ -135,10 +110,6 @@ Movie* Rental_GetMovie(Rental* self) {
 /////////////////////////////////////////////
 /* Customer related */
 /////////////////////////////////////////////
-typedef struct _Customer {
-    char* _name;
-    ArrayList* _rentals; 
-} Customer;
 
 Customer* Customer_New(char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
@@ -202,42 +173,3 @@ int Customer_Statement(Customer* self, char* result) {
     return byteWritten;
 }
 
-/////////////////////////////////////////////
-/* Main */
-/////////////////////////////////////////////
-int main(void) {
-
-    Movie Movie1;
-    Movie Movie2;
-    Movie Movie3;
-    Rental Rental1;
-    Rental Rental2;
-    Rental Rental3;
-    Customer* pCustomer;
-    char result[2048];
-    int byteWritten;
-
-    char* Title1 = "Frozen";
-    char* Title2 = "Amazing Spiderman 2";
-    char* Title3 = "Iron Man 1";
-    char* aName = "Scott Ahn";
-
-    Movie_New(&Movie1, Title1, MOVIE_CHILDRENS);
-    Movie_New(&Movie2, Title2, MOVIE_NEW_RELEASE);
-    Movie_New(&Movie3, Title3, MOVIE_REGULAR);
-
-    Rental_New(&Rental1, &Movie1, 2);
-    Rental_New(&Rental2, &Movie2, 3);
-    Rental_New(&Rental3, &Movie3, 4);
-    pCustomer = Customer_New(aName);
-    
-    Customer_AddRental(pCustomer, &Rental1);
-    Customer_AddRental(pCustomer, &Rental2);
-    Customer_AddRental(pCustomer, &Rental3);
-
-    byteWritten = Customer_Statement(pCustomer, result);
-    printf(result); 
-    assert(0 == strncmp("Rental Record for Scott \"Ahn\"\n\t              Frozen", result, byteWritten));
-
-    return 1;
-}
