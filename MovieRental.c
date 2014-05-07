@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 /////////////////////////////////////////////
 /* Linked list */
@@ -24,13 +25,20 @@ typedef enum _boolean {
 
 //const int NULL = 0;
 
-void ArrayList_AddElement(ArrayList* list, void* item); 
-boolean ArrayList_HasMoreElements(ArrayList* list); 
-void* ArrayList_NextElement(ArrayList* list); 
+ArrayList* ArrayList_New(void);
+void ArrayList_Add(ArrayList*, void*); 
+boolean ArrayList_HasMore(ArrayList*); 
+void* ArrayList_Next(ArrayList*); 
+void* ArrayList_Get(ArrayList*, int);
 
-void ArrayList_AddElement(ArrayList* list, void* item) {
+ArrayList* ArrayList_New(void) {
+    ArrayList* list = (ArrayList*)malloc(sizeof(ArrayList));
+    return list;
+}
+
+void ArrayList_Add(ArrayList* list, void* item) {
     Node* new_node;
-    new_node = malloc(sizeof(Node));
+    new_node = (Node*)malloc(sizeof(Node));
     new_node->data = item;
     new_node->next = NULL;
 
@@ -45,18 +53,33 @@ void ArrayList_AddElement(ArrayList* list, void* item) {
     }
 }
 
-boolean ArrayList_HasMoreElements(ArrayList* list) {
-    if (list->current != list->tail)
+boolean ArrayList_HasMore(ArrayList* list) {
+    if (list->current != list->tail && list->head != list->tail)
         return true;
     
     list->current = list->head; // reset current cursor
     return false;
 }
 
-void* ArrayList_NextElement(ArrayList* list) {
+void* ArrayList_Next(ArrayList* list) {
     Node* next = list->current->next;
+    if (next == NULL)
+        return NULL;
     list->current = next;
     return next->data;
+}
+
+void* ArrayList_Get(ArrayList* list, int position) {
+    Node* item = NULL;
+    int index;
+    Node* current = list->head;
+    for (index = 0; index <= position; index++) {
+        if (current == NULL)
+            break;
+        item = current;
+        current = current->next;
+    }
+    return item->data;
 }
 
 /////////////////////////////////////////////
@@ -71,7 +94,7 @@ typedef struct _Movie {
     int _priceCode;
 } Movie;
 
-void Movie_NewMovie(Movie* self, char* title, int priceCode) {
+void Movie_New(Movie* self, char* title, int priceCode) {
     self->_title = title;
     self->_priceCode = priceCode;
 }
@@ -93,15 +116,15 @@ char* Movie_GetTitle(Movie* self) {
 ///////////////////////////////////////////
 typedef struct _Rental {
     Movie* _movie;
-    int _daysRented;
+    unsigned int _daysRented;
 } Rental;
 
-void Rental_NewRental(Rental* self, Movie* movie, int daysRented) {
+void Rental_New(Rental* self, Movie* movie, unsigned int daysRented) {
     self->_movie = movie;
     self->_daysRented = daysRented;
 }
 
-int Rental_GetDaysRented(Rental* self) {
+unsigned int Rental_GetDaysRented(Rental* self) {
     return self->_daysRented;
 }
 
@@ -117,8 +140,15 @@ typedef struct _Customer {
     ArrayList* _rentals; 
 } Customer;
 
+Customer* Customer_New(char* name) {
+    Customer* customer = (Customer*)malloc(sizeof(Customer));
+    customer->_name = name;
+    customer->_rentals = ArrayList_New();
+    return customer;
+}
+
 void Customer_AddRental(Customer* self, Rental* rental) {
-    ArrayList_AddElement(self->_rentals, (void*)rental);
+    ArrayList_Add(self->_rentals, (void*)rental);
 }
 
 char* Customer_GetName(Customer* self) {
@@ -131,11 +161,10 @@ int Customer_Statement(Customer* self, char* result) {
     int byteWritten = 0;
 
     ArrayList* rentals = self->_rentals;
-    byteWritten = sprintf(result, "Rental Record for %s\n", Customer_GetName(self));
-
-    while (ArrayList_HasMoreElements(rentals)) {
+    byteWritten = snprintf(result, 2048, "Rental Record for \"%s\"\n", Customer_GetName(self));
+    Rental* each = (Rental*)ArrayList_Get(rentals, 0);
+    for ( ; each != NULL; each = (Rental*)ArrayList_Next(rentals)) {
         double thisAmount = 0;
-        Rental* each = (Rental*)ArrayList_NextElement(rentals);
 
         switch (Movie_GetPriceCode(Rental_GetMovie(each))) {
             case MOVIE_REGULAR:
@@ -162,7 +191,7 @@ int Customer_Statement(Customer* self, char* result) {
             frequentRenterPoints++;
 
         // show figures for this rental
-        byteWritten += sprintf(result + byteWritten, "\t%s\t%f\n", 
+        byteWritten += snprintf(result + byteWritten, 2048, "\t%*s\t%f\n", 20,
                                 Movie_GetTitle(Rental_GetMovie(each)), thisAmount);
         totalAmount += thisAmount;
     }
@@ -173,19 +202,42 @@ int Customer_Statement(Customer* self, char* result) {
     return byteWritten;
 }
 
+/////////////////////////////////////////////
+/* Main */
+/////////////////////////////////////////////
 int main(void) {
 
-    Movie aMovie;
-    Movie bMovie;
-    Movie cMovie;
+    Movie Movie1;
+    Movie Movie2;
+    Movie Movie3;
+    Rental Rental1;
+    Rental Rental2;
+    Rental Rental3;
+    Customer* pCustomer;
+    char result[2048];
+    int byteWritten;
 
-    char* aTitle = "Home Alone";
-    char* bTitle = "Amazing Spiderman 2";
-    char* cTitle = "Iron Man 1";
+    char* Title1 = "Frozen";
+    char* Title2 = "Amazing Spiderman 2";
+    char* Title3 = "Iron Man 1";
+    char* aName = "Scott Ahn";
 
-    Movie_NewMovie(&aMovie, aTitle, MOVIE_CHILDRENS);
-    Movie_NewMovie(&bMovie, bTitle, MOVIE_NEW_RELEASE);
-    Movie_NewMovie(&cMovie, cTitle, MOVIE_REGULAR);
+    Movie_New(&Movie1, Title1, MOVIE_CHILDRENS);
+    Movie_New(&Movie2, Title2, MOVIE_NEW_RELEASE);
+    Movie_New(&Movie3, Title3, MOVIE_REGULAR);
+
+    Rental_New(&Rental1, &Movie1, 2);
+    Rental_New(&Rental2, &Movie2, 3);
+    Rental_New(&Rental3, &Movie3, 4);
+    pCustomer = Customer_New(aName);
+    
+    Customer_AddRental(pCustomer, &Rental1);
+    Customer_AddRental(pCustomer, &Rental2);
+    Customer_AddRental(pCustomer, &Rental3);
+
+    byteWritten = Customer_Statement(pCustomer, result);
+    printf(result); 
+    assert(0 == strncmp("Rental Record for Scott \"Ahn\"\n\t              Frozen", result, byteWritten));
 
     return 1;
 }
