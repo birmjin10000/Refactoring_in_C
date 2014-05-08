@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include "MovieRental.h"
 
 /////////////////////////////////////////////
@@ -15,7 +14,6 @@ typedef enum _boolean {
 
 ArrayList* ArrayList_New(void);
 void ArrayList_Add(ArrayList*, void*); 
-boolean ArrayList_HasMore(ArrayList*); 
 void* ArrayList_Next(ArrayList*); 
 void* ArrayList_Get(ArrayList*, int);
 
@@ -39,14 +37,6 @@ void ArrayList_Add(ArrayList* list, void* item) {
         list->tail->next = new_node;
         list->tail = new_node;
     }
-}
-
-boolean ArrayList_HasMore(ArrayList* list) {
-    if (list->current != list->tail && list->head != list->tail)
-        return true;
-    
-    list->current = list->head; // reset current cursor
-    return false;
 }
 
 void* ArrayList_Next(ArrayList* list) {
