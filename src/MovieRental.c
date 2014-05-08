@@ -137,6 +137,7 @@ int Customer_Statement(Customer* self, char* result) {
     for ( ; each != NULL; each = (Rental*)ArrayList_Next(rentals)) {
         double thisAmount = 0;
 
+		// determine amounts for each line
         switch (Movie_GetPriceCode(Rental_GetMovie(each))) {
             case MOVIE_REGULAR:
                 thisAmount += 2;
@@ -154,6 +155,7 @@ int Customer_Statement(Customer* self, char* result) {
                     thisAmount += (Rental_GetDaysRented(each) - 3) * 1.5;
                 break;
         }
+
         // add frequent renter points
         frequentRenterPoints++;
         // add bonus for a two day new release rental
