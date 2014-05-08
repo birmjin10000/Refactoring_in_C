@@ -7,11 +7,6 @@
 /* Linked list */
 /////////////////////////////////////////////
 
-typedef enum _boolean {
-    false = 0,
-    true = 1
-} boolean;
-
 ArrayList* ArrayList_New(void);
 void ArrayList_Add(ArrayList*, void*); 
 void* ArrayList_Next(ArrayList*); 
