@@ -7,89 +7,99 @@
 /* Linked list */
 /////////////////////////////////////////////
 
-ArrayList* ArrayList_New(void);
-void ArrayList_Add(ArrayList*, void*); 
-void* ArrayList_Next(ArrayList*); 
-void* ArrayList_Get(ArrayList*, int);
+List* List_Append(List*, void*); 
+List* List_Last(List*);
+List* List_First(List*);
+unsigned int List_Length(List*);
 
-ArrayList* ArrayList_New(void) {
-    ArrayList* list = (ArrayList*)malloc(sizeof(ArrayList));
+#define List_Previous(list)    ((list) ? (((List *)(list))->prev) : NULL)
+#define List_Next(list)    ((list) ? (((List *)(list))->next) : NULL)
+
+List* List_Append(List* list, void* data) {
+    List* new_list;
+    List* last;
+
+    new_list = (List*)malloc(sizeof(List));
+    new_list->data = data;
+    new_list->next = NULL;
+
+    if (list) {
+        last = List_Last(list);
+        last->next = new_list;
+        new_list->prev = last;
+        
+        return list;
+    }
+    else {
+        new_list->prev = NULL;
+        return new_list;
+    }
+}
+
+List* List_Last(List* list) {
+    if (list) {
+        while (list->next)
+            list = list->next;
+    }
+  
     return list;
 }
 
-void ArrayList_Add(ArrayList* list, void* item) {
-    Node* new_node;
-    new_node = (Node*)malloc(sizeof(Node));
-    new_node->data = item;
-    new_node->next = NULL;
-
-    if (list->head == NULL) {
-        list->head = new_node;
-        list->tail = new_node;
-        list->current = new_node;
+List* List_First(List* list) {
+    if (list) {
+        while (list->prev)
+            list = list->prev;
     }
-    else {
-        list->tail->next = new_node;
-        list->tail = new_node;
-    }
+  
+    return list;
 }
 
-void* ArrayList_Next(ArrayList* list) {
-    Node* next = list->current->next;
-    if (next == NULL)
-        return NULL;
-    list->current = next;
-    return next->data;
-}
-
-void* ArrayList_Get(ArrayList* list, int position) {
-    Node* item = NULL;
-    int index;
-    Node* current = list->head;
-    for (index = 0; index <= position; index++) {
-        if (current == NULL)
-            break;
-        item = current;
-        current = current->next;
+unsigned int List_Length(List *list) {
+    unsigned int length = 0;
+  
+    while (list) {
+        length++;
+        list = list->next;
     }
-    return item->data;
+  
+    return length;
 }
 
 /////////////////////////////////////////////
 /* Movie related */
 /////////////////////////////////////////////
 
-void Movie_New(Movie* self, char* title, int priceCode) {
-    self->_title = title;
-    self->_priceCode = priceCode;
+void Movie_New(Movie* this, char* title, int priceCode) {
+    this->_title = title;
+    this->_priceCode = priceCode;
 }
 
-int Movie_GetPriceCode(Movie* self) {
-    return self->_priceCode;
+int Movie_GetPriceCode(Movie* this) {
+    return this->_priceCode;
 }
 
-void Movie_SetPriceCode(Movie* self, int priceCode) {
-    self->_priceCode = priceCode;
+void Movie_SetPriceCode(Movie* this, int priceCode) {
+    this->_priceCode = priceCode;
 }
 
-char* Movie_GetTitle(Movie* self) {
-    return self->_title;
+char* Movie_GetTitle(Movie* this) {
+    return this->_title;
 }
 
 ///////////////////////////////////////////
 /* Rental related */
 ///////////////////////////////////////////
-void Rental_New(Rental* self, Movie* movie, unsigned int daysRented) {
-    self->_movie = movie;
-    self->_daysRented = daysRented;
+void Rental_New(Rental* this, Movie* movie, unsigned int daysRented) {
+    this->_movie = movie;
+    this->_daysRented = daysRented;
 }
 
-unsigned int Rental_GetDaysRented(Rental* self) {
-    return self->_daysRented;
+unsigned int Rental_GetDaysRented(Rental* this) {
+    return this->_daysRented;
 }
 
-Movie* Rental_GetMovie(Rental* self) {
-    return self->_movie;
+Movie* Rental_GetMovie(Rental* this) {
+    return this->_movie;
 }
 
 /////////////////////////////////////////////
@@ -99,29 +109,29 @@ Movie* Rental_GetMovie(Rental* self) {
 Customer* Customer_New(char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
     customer->_name = name;
-    customer->_rentals = ArrayList_New();
+    customer->_rentals = NULL;
     return customer;
 }
 
-void Customer_AddRental(Customer* self, Rental* rental) {
-    ArrayList_Add(self->_rentals, (void*)rental);
+void Customer_AddRental(Customer* this, Rental* rental) {
+    this->_rentals = List_Append(this->_rentals, (void*)rental);
 }
 
-char* Customer_GetName(Customer* self) {
-    return self->_name;
+char* Customer_GetName(Customer* this) {
+    return this->_name;
 }
 
-int Customer_Statement(Customer* self, char* result) {
+int Customer_Statement(Customer* this, char* result) {
     double totalAmount = 0;
     int frequentRenterPoints = 0;
     int byteWritten = 0;
 
-    ArrayList* rentals = self->_rentals;
-    byteWritten = snprintf(result, 2048, "Rental Record for \"%s\"\n", Customer_GetName(self));
-    Rental* each = (Rental*)ArrayList_Get(rentals, 0);
-    for ( ; each != NULL; each = (Rental*)ArrayList_Next(rentals)) {
+    List* rentals = this->_rentals;
+    byteWritten = snprintf(result, 2048, "Rental Record for \"%s\"\n", Customer_GetName(this));
+   
+    for ( ; rentals != NULL; rentals = List_Next(rentals)) {
         double thisAmount = 0;
-
+        Rental* each = (Rental*)rentals->data;
 		// determine amounts for each line
         switch (Movie_GetPriceCode(Rental_GetMovie(each))) {
             case MOVIE_REGULAR:

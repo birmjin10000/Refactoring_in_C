@@ -5,20 +5,15 @@
 #define MOVIE_REGULAR 0
 #define MOVIE_NEW_RELEASE 1
 
-typedef struct _Node {
+typedef struct _List{
     void* data;
-    struct _Node* next;
-} Node;
-
-typedef struct _ArrayList {
-    Node* head;
-    Node* tail;
-    Node* current;
-} ArrayList;
+    struct _List* next;
+    struct _List* prev;
+} List;
 
 typedef struct _Customer {
     char* _name;
-    ArrayList* _rentals;		
+    List* _rentals;		
 } Customer; 
 
 typedef struct _Movie {
