@@ -27,12 +27,12 @@ typedef struct _Rental {
 } Rental;
 
 
-void Movie_New(Movie* self, char* title, int priceCode); 
+void Movie_New(Movie*, char*, int); 
 
-void Rental_New(Rental* self, Movie* movie, unsigned int daysRented); 
+void Rental_New(Rental*, Movie*, unsigned int); 
 
-Customer* Customer_New(char* name); 
-void Customer_AddRental(Customer* self, Rental* rental); 
-int Customer_Statement(Customer* customer, char* result);
+Customer* Customer_New(char*); 
+void Customer_AddRental(Customer*, Rental*); 
+int Customer_Statement(Customer*, char*);
  
 #endif
