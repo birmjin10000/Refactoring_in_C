@@ -14,7 +14,26 @@ unsigned int List_Length(List*);
 
 #define List_Previous(list)    ((list) ? (((List *)(list))->prev) : NULL)
 #define List_Next(list)    ((list) ? (((List *)(list))->next) : NULL)
+#define List_ForEach(pos, head) \
+    for (pos = (head)->next; pos != (head); pos = pos->next)
 
+void List_Init(List* list) {
+    list->next = list;
+    list->prev = list;
+}
+
+#if 1
+static void __List_Append(List* new, List* prev, List* next) {
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+void List_Append(List* new, List* head) {
+    __List_Append(new, head->prev, head);
+}
+#else
 List* List_Append(List* list, void* data) {
     List* new_list;
     List* last;
@@ -35,6 +54,7 @@ List* List_Append(List* list, void* data) {
         return new_list;
     }
 }
+#endif
 
 List* List_Last(List* list) {
     if (list) {
@@ -109,12 +129,24 @@ Movie* Rental_GetMovie(Rental* this) {
 Customer* Customer_New(char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
     customer->_name = name;
+#if 1
+    customer->_rentals = (List*)malloc(sizeof(List));
+    List_Init(customer->_rentals);
+#else
     customer->_rentals = NULL;
+#endif
     return customer;
 }
 
 void Customer_AddRental(Customer* this, Rental* rental) {
+#if 1
+    List* new_list = (List*)malloc(sizeof(List));
+    new_list->data = rental;
+   
+    List_Append(this->_rentals, new_list);
+#else
     this->_rentals = List_Append(this->_rentals, (void*)rental);
+#endif
 }
 
 char* Customer_GetName(Customer* this) {
