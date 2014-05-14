@@ -6,23 +6,16 @@
 /////////////////////////////////////////////
 /* Linked list */
 /////////////////////////////////////////////
+void List_Append(List*, List*);
 
-List* List_Append(List*, void*); 
-List* List_Last(List*);
-List* List_First(List*);
-unsigned int List_Length(List*);
-
-#define List_Previous(list)    ((list) ? (((List *)(list))->prev) : NULL)
-#define List_Next(list)    ((list) ? (((List *)(list))->next) : NULL)
-#define List_ForEach(pos, head) \
-    for (pos = (head)->next; pos != (head); pos = pos->next)
+#define List_ForEach(cursor, head) \
+    for (cursor = (head)->next; cursor != (head); cursor = cursor->next)
 
 void List_Init(List* list) {
     list->next = list;
     list->prev = list;
 }
 
-#if 1
 static void __List_Append(List* new, List* prev, List* next) {
     next->prev = new;
     new->next = next;
@@ -32,57 +25,6 @@ static void __List_Append(List* new, List* prev, List* next) {
 
 void List_Append(List* new, List* head) {
     __List_Append(new, head->prev, head);
-}
-#else
-List* List_Append(List* list, void* data) {
-    List* new_list;
-    List* last;
-
-    new_list = (List*)malloc(sizeof(List));
-    new_list->data = data;
-    new_list->next = NULL;
-
-    if (list) {
-        last = List_Last(list);
-        last->next = new_list;
-        new_list->prev = last;
-        
-        return list;
-    }
-    else {
-        new_list->prev = NULL;
-        return new_list;
-    }
-}
-#endif
-
-List* List_Last(List* list) {
-    if (list) {
-        while (list->next)
-            list = list->next;
-    }
-  
-    return list;
-}
-
-List* List_First(List* list) {
-    if (list) {
-        while (list->prev)
-            list = list->prev;
-    }
-  
-    return list;
-}
-
-unsigned int List_Length(List *list) {
-    unsigned int length = 0;
-  
-    while (list) {
-        length++;
-        list = list->next;
-    }
-  
-    return length;
 }
 
 /////////////////////////////////////////////
@@ -129,24 +71,16 @@ Movie* Rental_GetMovie(Rental* this) {
 Customer* Customer_New(char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
     customer->_name = name;
-#if 1
     customer->_rentals = (List*)malloc(sizeof(List));
     List_Init(customer->_rentals);
-#else
-    customer->_rentals = NULL;
-#endif
     return customer;
 }
 
 void Customer_AddRental(Customer* this, Rental* rental) {
-#if 1
     List* new_list = (List*)malloc(sizeof(List));
     new_list->data = rental;
    
-    List_Append(this->_rentals, new_list);
-#else
-    this->_rentals = List_Append(this->_rentals, (void*)rental);
-#endif
+    List_Append(new_list, this->_rentals);
 }
 
 char* Customer_GetName(Customer* this) {
@@ -159,11 +93,12 @@ int Customer_Statement(Customer* this, char* result) {
     int byteWritten = 0;
 
     List* rentals = this->_rentals;
+    List* cursor;
     byteWritten = snprintf(result, 2048, "Rental Record for \"%s\"\n", Customer_GetName(this));
    
-    for ( ; rentals != NULL; rentals = List_Next(rentals)) {
+    List_ForEach(cursor, rentals) {
         double thisAmount = 0;
-        Rental* each = (Rental*)rentals->data;
+        Rental* each = (Rental*)cursor->data;
 		// determine amounts for each line
         switch (Movie_GetPriceCode(Rental_GetMovie(each))) {
             case MOVIE_REGULAR:
