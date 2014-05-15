@@ -38,7 +38,7 @@ void test_Customer_Statement_Should_Be_Correct(void) {
     Customer_AddRental(pCustomer, &Rental2);
     Customer_AddRental(pCustomer, &Rental3);
 
-    byteWritten = Customer_Statement(pCustomer, result);
+    byteWritten = Customer_Statement(pCustomer, result, 2048);
     printf(result); 
  
     // All of these should pass

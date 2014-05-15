@@ -33,6 +33,6 @@ void Rental_New(Rental*, Movie*, unsigned int);
 
 Customer* Customer_New(char*); 
 void Customer_AddRental(Customer*, Rental*); 
-int Customer_Statement(Customer*, char*);
+int Customer_Statement(Customer*, char*, unsigned int);
  
 #endif

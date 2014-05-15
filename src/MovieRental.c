@@ -87,14 +87,14 @@ char* Customer_GetName(Customer* this) {
     return this->_name;
 }
 
-int Customer_Statement(Customer* this, char* result) {
+int Customer_Statement(Customer* this, char* result, unsigned int bufferLen) {
     double totalAmount = 0;
     int frequentRenterPoints = 0;
     int byteWritten = 0;
 
     List* rentals = this->_rentals;
     List* cursor;
-    byteWritten = snprintf(result, 2048, "Rental Record for \"%s\"\n", Customer_GetName(this));
+    byteWritten = snprintf(result, bufferLen, "Rental Record for \"%s\"\n", Customer_GetName(this));
    
     List_ForEach(cursor, rentals) {
         double thisAmount = 0;
@@ -126,13 +126,13 @@ int Customer_Statement(Customer* this, char* result) {
             frequentRenterPoints++;
 
         // show figures for this rental
-        byteWritten += snprintf(result + byteWritten, 2048, "\t%*s\t%f\n", 20,
+        byteWritten += snprintf(result + byteWritten, bufferLen, "\t%*s\t%f\n", 20,
                                 Movie_GetTitle(Rental_GetMovie(each)), thisAmount);
         totalAmount += thisAmount;
     }
     // add footer lines
-    byteWritten += sprintf(result + byteWritten, "Amount owed is %f\n", totalAmount);
-    byteWritten += sprintf(result + byteWritten, "You earned %d frequent renter points", frequentRenterPoints);
+    byteWritten += snprintf(result + byteWritten, bufferLen, "Amount owed is %f\n", totalAmount);
+    byteWritten += snprintf(result + byteWritten, bufferLen, "You earned %d frequent renter points", frequentRenterPoints);
     
     return byteWritten;
 }
