@@ -13,7 +13,7 @@ typedef struct _List{
 
 typedef struct _Customer {
     char* _name;
-    List* _rentals;		
+    List _rentals;		
 } Customer; 
 
 typedef struct _Movie {
@@ -35,4 +35,4 @@ Customer* Customer_New(char*);
 void Customer_AddRental(Customer*, Rental*); 
 int Customer_Statement(Customer*, char*, unsigned int);
  
-#endif
+#endif // _MOVIE_RENTAL_H_

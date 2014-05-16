@@ -71,8 +71,7 @@ Movie* Rental_GetMovie(Rental* this) {
 Customer* Customer_New(char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
     customer->_name = name;
-    customer->_rentals = (List*)malloc(sizeof(List));
-    List_Init(customer->_rentals);
+    List_Init(&customer->_rentals);
     return customer;
 }
 
@@ -80,7 +79,7 @@ void Customer_AddRental(Customer* this, Rental* rental) {
     List* new_list = (List*)malloc(sizeof(List));
     new_list->data = rental;
    
-    List_Append(new_list, this->_rentals);
+    List_Append(new_list, &this->_rentals);
 }
 
 char* Customer_GetName(Customer* this) {
@@ -92,42 +91,42 @@ int Customer_Statement(Customer* this, char* result, unsigned int bufferLen) {
     int frequentRenterPoints = 0;
     int byteWritten = 0;
 
-    List* rentals = this->_rentals;
-    List* cursor;
+    List* rentals = &this->_rentals;
+    List* each;
     byteWritten = snprintf(result, bufferLen, "Rental Record for \"%s\"\n", Customer_GetName(this));
    
-    List_ForEach(cursor, rentals) {
+    List_ForEach(each, rentals) {
         double thisAmount = 0;
-        Rental* each = (Rental*)cursor->data;
+        Rental* r = (Rental*)each->data;
 		// determine amounts for each line
-        switch (Movie_GetPriceCode(Rental_GetMovie(each))) {
+        switch (Movie_GetPriceCode(Rental_GetMovie(r))) {
             case MOVIE_REGULAR:
                 thisAmount += 2;
-                if (Rental_GetDaysRented(each) > 2)
-                    thisAmount += (Rental_GetDaysRented(each) - 2) * 1.5;
+                if (Rental_GetDaysRented(r) > 2)
+                    thisAmount += (Rental_GetDaysRented(r) - 2) * 1.5;
                 break;
 
             case MOVIE_NEW_RELEASE:
-                thisAmount += Rental_GetDaysRented(each) * 3;
+                thisAmount += Rental_GetDaysRented(r) * 3;
                 break;
 
             case MOVIE_CHILDRENS:
                 thisAmount += 1.5;
-                if (Rental_GetDaysRented(each) > 3)
-                    thisAmount += (Rental_GetDaysRented(each) - 3) * 1.5;
+                if (Rental_GetDaysRented(r) > 3)
+                    thisAmount += (Rental_GetDaysRented(r) - 3) * 1.5;
                 break;
         }
 
         // add frequent renter points
         frequentRenterPoints++;
         // add bonus for a two day new release rental
-        if (Movie_GetPriceCode(Rental_GetMovie(each)) == MOVIE_NEW_RELEASE &&
-            Rental_GetDaysRented(each) > 1)
+        if (Movie_GetPriceCode(Rental_GetMovie(r)) == MOVIE_NEW_RELEASE &&
+            Rental_GetDaysRented(r) > 1)
             frequentRenterPoints++;
 
         // show figures for this rental
         byteWritten += snprintf(result + byteWritten, bufferLen, "\t%*s\t%f\n", 20,
-                                Movie_GetTitle(Rental_GetMovie(each)), thisAmount);
+                                Movie_GetTitle(Rental_GetMovie(r)), thisAmount);
         totalAmount += thisAmount;
     }
     // add footer lines
