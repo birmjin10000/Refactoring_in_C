@@ -31,9 +31,11 @@ void List_Append(List* new, List* head) {
 /* Movie related */
 /////////////////////////////////////////////
 
-void Movie_New(Movie* this, char* title, int priceCode) {
-    this->_title = title;
-    this->_priceCode = priceCode;
+Movie* Movie_New(char* title, int priceCode) {
+    Movie* movie = (Movie*)malloc(sizeof(Movie));
+    movie->_title = title;
+    movie->_priceCode = priceCode;
+    return movie;
 }
 
 int Movie_GetPriceCode(Movie* this) {
@@ -51,9 +53,11 @@ char* Movie_GetTitle(Movie* this) {
 ///////////////////////////////////////////
 /* Rental related */
 ///////////////////////////////////////////
-void Rental_New(Rental* this, Movie* movie, unsigned int daysRented) {
-    this->_movie = movie;
-    this->_daysRented = daysRented;
+Rental* Rental_New(Movie* movie, unsigned int daysRented) {
+    Rental* rental = (Rental*)malloc(sizeof(Rental));
+    rental->_movie = movie;
+    rental->_daysRented = daysRented;
+    return rental;
 }
 
 unsigned int Rental_GetDaysRented(Rental* this) {

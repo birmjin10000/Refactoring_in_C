@@ -10,36 +10,29 @@ void tearDown(void) {
 }
 
 void test_Customer_Statement_Should_Be_Correct(void) {
-    Movie Movie1;
-    Movie Movie2;
-    Movie Movie3;
-    Rental Rental1;
-    Rental Rental2;
-    Rental Rental3;
-    Customer* pCustomer;
     char result[2048];
     int byteWritten;
 
-    char* Title1 = "Frozen";
-    char* Title2 = "Amazing Spiderman 2";
-    char* Title3 = "Iron Man 1";
-    char* aName = "Scott Ahn";
+    char* title1 = "Frozen";
+    char* title2 = "Amazing Spiderman 2";
+    char* title3 = "Iron Man 1";
+    char* name1 = "Scott Ahn";
 
-    Movie_New(&Movie1, Title1, MOVIE_CHILDRENS);
-    Movie_New(&Movie2, Title2, MOVIE_NEW_RELEASE);
-    Movie_New(&Movie3, Title3, MOVIE_REGULAR);
+    Movie* movie1 = Movie_New(title1, MOVIE_CHILDRENS);
+    Movie* movie2 = Movie_New(title2, MOVIE_NEW_RELEASE);
+    Movie* movie3 = Movie_New(title3, MOVIE_REGULAR);
 
-    Rental_New(&Rental1, &Movie1, 2);
-    Rental_New(&Rental2, &Movie2, 3);
-    Rental_New(&Rental3, &Movie3, 4);
-    pCustomer = Customer_New(aName);
+    Rental* rental1 = Rental_New(movie1, 2);
+    Rental* rental2 = Rental_New(movie2, 3);
+    Rental* rental3 = Rental_New(movie3, 4);
+    Customer* customer1 = Customer_New(name1);
     
-    Customer_AddRental(pCustomer, &Rental1);
-    Customer_AddRental(pCustomer, &Rental2);
-    Customer_AddRental(pCustomer, &Rental3);
+    Customer_AddRental(customer1, rental1);
+    Customer_AddRental(customer1, rental2);
+    Customer_AddRental(customer1, rental3);
 
-    byteWritten = Customer_Statement(pCustomer, result, 2048);
-    printf(result); 
+    byteWritten = Customer_Statement(customer1, result, 2048);
+    printf("%s\n", result); 
  
     // All of these should pass
     TEST_ASSERT_EQUAL_STRING("Rental Record for \"Scott Ahn\"\n"
@@ -49,5 +42,4 @@ void test_Customer_Statement_Should_Be_Correct(void) {
 				"Amount owed is 15.500000\n"
 			"You earned 4 frequent renter points", result);
 }
-
 

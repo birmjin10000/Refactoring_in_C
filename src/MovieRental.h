@@ -27,9 +27,9 @@ typedef struct _Rental {
 } Rental;
 
 
-void Movie_New(Movie*, char*, int); 
+Movie* Movie_New(char*, int); 
 
-void Rental_New(Rental*, Movie*, unsigned int); 
+Rental* Rental_New(Movie*, unsigned int); 
 
 Customer* Customer_New(char*); 
 void Customer_AddRental(Customer*, Rental*); 
