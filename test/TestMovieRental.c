@@ -1,5 +1,7 @@
-#include "MovieRental.h"
 #include "unity.h"
+#include "Movie.h"
+#include "Rental.h"
+#include "Customer.h"
 
 void setUp(void) {
     // This is run before EACH TEST
