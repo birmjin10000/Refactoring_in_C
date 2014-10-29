@@ -28,7 +28,7 @@ int main(void) {
   UnityBegin();
 
   // RUN_TEST calls runTest
-  RUN_TEST(test_Customer_Statement_Should_Be_Correct, 12);
+  RUN_TEST(test_Customer_Statement_Should_Be_Correct, 14);
 
   UnityEnd();
   return 0;

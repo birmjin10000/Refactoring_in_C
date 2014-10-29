@@ -9,6 +9,7 @@ typedef struct _Rental {
 } Rental;
 
 Rental* Rental_New(Movie*, unsigned int); 
+unsigned int Rental_GetDaysRented(Rental*);
 Movie* Rental_GetMovie(Rental*);
 
 #endif // _RENTAL_H_

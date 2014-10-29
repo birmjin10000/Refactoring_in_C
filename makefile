@@ -1,5 +1,6 @@
 UNITY_ROOT=./Unity
 C_COMPILER=gcc
+CFLAGS = -Wall -O3
 TARGET_BASE=test
 TARGET_EXTENSION=.out
 
@@ -13,7 +14,7 @@ CLEANUP = rm -f build/*.o; rm -f $(TARGET)
 all: clean default
 
 default:
-	$(C_COMPILER) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES) -o $(TARGET)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES) -o $(TARGET)
 	./$(TARGET)
 
 clean:

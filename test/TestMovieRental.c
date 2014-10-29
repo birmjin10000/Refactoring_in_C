@@ -34,7 +34,7 @@ void test_Customer_Statement_Should_Be_Correct(void) {
     Customer_AddRental(customer1, rental3);
 
     byteWritten = Customer_Statement(customer1, result, 2048);
-    printf("%s\n", result); 
+    printf("%s\n(%d bytes)\n", result, byteWritten); 
  
     // All of these should pass
     TEST_ASSERT_EQUAL_STRING("Rental Record for \"Scott Ahn\"\n"
