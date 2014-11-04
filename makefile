@@ -1,6 +1,6 @@
 UNITY_ROOT=./Unity
 C_COMPILER=gcc
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -O3 -std=c99 -pedantic-errors
 TARGET_BASE=test
 TARGET_EXTENSION=.out
 
